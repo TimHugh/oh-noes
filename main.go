@@ -10,17 +10,23 @@ import (
 const delay time.Duration = 10 * time.Millisecond
 
 func main() {
+	quit, letter := letterIterator()
+
+	fmt.Println("Press enter...")
+	reader := bufio.NewReader(os.Stdin)
+	reader.ReadLine()
+	close(quit)
+
+	fmt.Println("Oh noes! You stopped on " + <-letter)
+}
+
+func letterIterator() (chan bool, chan string) {
 	quit := make(chan bool)
 	letter := make(chan string)
 
-	fmt.Println("Press enter...")
 	go letterLoop(quit, letter)
 
-	reader := bufio.NewReader(os.Stdin)
-	reader.ReadLine()
-
-	quit <- true
-	fmt.Println("Oh noes! You stopped on " + <-letter)
+	return quit, letter
 }
 
 func letterLoop(quit <-chan bool, letter chan<- string) {
